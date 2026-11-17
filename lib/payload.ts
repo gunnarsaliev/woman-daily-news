@@ -113,6 +113,12 @@ function toBlogPost(post: PayloadPost): BlogPost | null {
   }
 }
 
+/** Readable label for a category that has no title in the requested locale. */
+function titleFromSlug(slug: string) {
+  const words = slug.replace(/-/g, ' ')
+  return words.charAt(0).toUpperCase() + words.slice(1)
+}
+
 /** All published posts, newest first. */
 export async function getPosts(): Promise<BlogPost[]> {
   const data = await payloadFetch<PayloadList<PayloadPost>>('blog', {
@@ -139,6 +145,6 @@ export async function getCategories(): Promise<BlogCategory[]> {
     limit: '100',
   })
   return data.docs.flatMap((category) =>
-    category.slug ? [{ id: category.slug, label: category.title || category.slug }] : [],
+    category.slug ? [{ id: category.slug, label: category.title || titleFromSlug(category.slug) }] : [],
   )
 }

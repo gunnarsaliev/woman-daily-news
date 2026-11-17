@@ -22,6 +22,8 @@ interface Blogpost1Props {
   datePrefix?: string;
   image?: BlogPostImage;
   body?: React.ReactNode;
+  /** Shown beside the body on large screens and above it on small ones. */
+  sidebar?: React.ReactNode;
   author?: BlogPostAuthor;
   className?: string;
 }
@@ -33,6 +35,7 @@ const Blogpost1 = ({
   author,
   image,
   body,
+  sidebar,
   date,
   datePrefix,
 }: Blogpost1Props) => {
@@ -93,7 +96,14 @@ const Blogpost1 = ({
           </div>
         ) : null}
       </div>
-      {body ? (
+      {sidebar ? (
+        <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[minmax(0,1fr)_240px] lg:gap-12">
+          <aside className="flex flex-col gap-8 lg:order-last lg:sticky lg:top-8 lg:self-start">
+            {sidebar}
+          </aside>
+          <div className="prose max-w-none dark:prose-invert">{body}</div>
+        </div>
+      ) : body ? (
         <div className="mx-auto prose max-w-3xl dark:prose-invert">{body}</div>
       ) : null}
     </section>

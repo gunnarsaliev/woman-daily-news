@@ -30,9 +30,9 @@ type FeaturedStoriesProps = {
 
 export function FeaturedStories({ spotlight, trending, supporting }: FeaturedStoriesProps) {
   return (
-    <section aria-label="Featured articles" className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-[0.88fr_1.78fr_0.98fr]">
-      <aside aria-label="Popular reads" className="flex flex-col divide-y divide-slate-100 lg:pr-1">
-        <h2 className="pb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Popular reads</h2>
+    <section aria-label="Featured stories" className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-[0.88fr_1.78fr_0.98fr]">
+      <aside aria-label="Most read" className="flex flex-col divide-y divide-slate-100 lg:pr-1">
+        <h2 className="pb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Most read</h2>
         {trending.map((article) => (
           <article className="py-3.5" key={article.id}>
             <TagList tags={article.tags} />
@@ -72,7 +72,7 @@ export function FeaturedStories({ spotlight, trending, supporting }: FeaturedSto
         </div>
       </article>
 
-      <aside aria-label="More featured articles" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:flex lg:flex-col">
+      <aside aria-label="More featured stories" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:flex lg:flex-col">
         {supporting.map((article) => (
           <article className="relative overflow-hidden rounded-[18px] border border-slate-100 bg-white p-1.5" key={article.id}>
             <div className="relative aspect-[1.75] overflow-hidden rounded-[13px] bg-slate-100">

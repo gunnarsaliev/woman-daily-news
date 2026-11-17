@@ -71,7 +71,7 @@ export function BlogHome({ data }: { data: BlogHomeData }) {
             />
           ) : (
             <div className="mt-10 rounded-2xl border border-dashed border-slate-200 px-6 py-12 text-center text-sm text-slate-500">
-              No stories match your search. Try another keyword or category.
+              No stories match your search. Try another keyword or topic.
             </div>
           )}
         </div>

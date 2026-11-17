@@ -1,9 +1,9 @@
 {
   "hero": {
-    "eyebrow": "Stay informed with the latest articles and insights.",
-    "title": "Discover Cloudey’s Latest",
-    "accent": "Updates.",
-    "description": "Discover expert tips, product updates, and cloud storage insights to help modern teams stay organized, secure, and productive."
+    "eyebrow": "Fresh reads on health, life and style, every day.",
+    "title": "Stories that matter to",
+    "accent": "women today.",
+    "description": "From wellbeing and fitness to relationships, money and travel, find clear answers and good ideas for the questions on your mind."
   },
   "categories": [
     { "id": "all", "label": "All" },
@@ -13,7 +13,7 @@
     { "id": "productivity", "label": "Productivity" },
     { "id": "collaboration", "label": "Collaboration" }
   ],
-  "trustedBy": ["slack", "loom", "convex", "Buffer", "Revolut"],
+  "trustedBy": ["Health", "Wellbeing", "Relationships", "Money", "Travel"],
   "spotlightArticleId": "secure-files",
   "articles": [
     {

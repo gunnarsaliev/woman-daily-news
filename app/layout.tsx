@@ -6,8 +6,11 @@ import './globals.css'
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
-  title: 'Cloudey Journal — Cloud storage insights for modern teams',
-  description: 'Discover practical cloud storage tips, security guidance, and product updates for organized, productive teams.',
+  title: {
+    default: 'Woman Daily News — Health, life and style stories for women',
+    template: '%s | Woman Daily News',
+  },
+  description: 'Daily reads on health, wellbeing, relationships, money and travel, written for women who want clear answers and good ideas.',
   generator: 'v0.app',
   icons: {
     icon: [

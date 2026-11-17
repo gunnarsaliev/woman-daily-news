@@ -1,22 +1,27 @@
 import {
-  Box,
-  Cloud,
+  Briefcase,
+  HeartHandshake,
+  HeartPulse,
   LayoutGrid,
+  Newspaper,
   Search,
-  ShieldCheck,
-  UsersRound,
-  Zap,
+  Shirt,
+  Sparkles,
+  Tag,
+  TrendingUp,
   type LucideIcon,
 } from 'lucide-react'
 import type { BlogCategory } from '@/components/blog/blog-types'
 
 const categoryIcons: Record<string, LucideIcon> = {
   all: LayoutGrid,
-  product: Box,
-  storage: Cloud,
-  security: ShieldCheck,
-  productivity: Zap,
-  collaboration: UsersRound,
+  news: Newspaper,
+  trends: TrendingUp,
+  'health-wellness': HeartPulse,
+  beauty: Sparkles,
+  fashion: Shirt,
+  'career-money': Briefcase,
+  relationships: HeartHandshake,
 }
 
 type CategoryBarProps = {
@@ -35,11 +40,11 @@ export function CategoryBar({
   onSearchChange,
 }: CategoryBarProps) {
   return (
-    <nav aria-label="Filter articles by category" className="mt-9 rounded-full border border-slate-100 bg-slate-50/90 p-1.5 shadow-sm">
+    <nav aria-label="Filter stories by topic" className="mt-9 rounded-full border border-slate-100 bg-slate-50/90 p-1.5 shadow-sm">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
         <div className="flex min-w-0 gap-1 overflow-x-auto px-0.5 pb-1 lg:flex-1 lg:overflow-visible lg:pb-0">
           {categories.map((category) => {
-            const Icon = categoryIcons[category.id] ?? Box
+            const Icon = categoryIcons[category.id] ?? Tag
             const isActive = activeCategory === category.id
 
             return (
@@ -58,11 +63,11 @@ export function CategoryBar({
         </div>
         <label className="flex h-10 items-center gap-2 rounded-full border border-slate-100 bg-white px-4 text-slate-400 shadow-sm lg:w-[270px] lg:shrink-0">
           <Search aria-hidden="true" className="size-4 shrink-0" />
-          <span className="sr-only">Search blog articles</span>
+          <span className="sr-only">Search stories</span>
           <input
             className="min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search blog"
+            placeholder="Search stories"
             type="search"
             value={search}
           />

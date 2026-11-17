@@ -19,12 +19,12 @@ export function LatestStories({ stories, page, pageNumbers, onPageChange }: Late
     <section aria-labelledby="latest-stories-heading">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">The Cloudey journal</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Latest stories</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-[-0.035em] text-slate-900 sm:text-3xl" id="latest-stories-heading">
-            Ideas for a better cloud workspace
+            Fresh reads for your day
           </h2>
         </div>
-        <p className="max-w-md text-sm leading-6 text-slate-500">Practical perspectives on keeping your files secure, your work organized, and your team connected.</p>
+        <p className="max-w-md text-sm leading-6 text-slate-500">Honest advice and everyday inspiration on health, relationships, money and the moments in between.</p>
       </div>
 
       {stories.length > 0 ? (
@@ -35,11 +35,11 @@ export function LatestStories({ stories, page, pageNumbers, onPageChange }: Late
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-slate-200 px-6 py-12 text-center text-sm text-slate-500">
-          No articles to show yet. Try a different search or category.
+          No stories to show yet. Try a different search or topic.
         </div>
       )}
 
-      <nav aria-label="Article pages" className="mt-9 flex items-center justify-center gap-1.5">
+      <nav aria-label="Story pages" className="mt-9 flex items-center justify-center gap-1.5">
         <Button
           aria-label="Previous page"
           className="size-9 rounded-full text-slate-500"
