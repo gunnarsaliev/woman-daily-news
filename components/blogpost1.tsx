@@ -15,11 +15,25 @@ interface BlogPostAuthor {
   websiteName?: string;
 }
 
+interface BlogPostByline {
+  name: string;
+  url?: string;
+}
+
 interface Blogpost1Props {
   title: string;
   description?: string;
+  /** Human-readable publication date. */
   date?: string;
+  /** ISO 8601 publication date; makes `date` a machine-readable <time>. */
+  publishedAt?: string;
+  /** ISO 8601 date of the last change; shown when it differs from the publication day. */
+  updatedAt?: string;
+  /** Shown after the date, e.g. "6 min read". */
+  dateSuffix?: string;
   datePrefix?: string;
+  /** Visible "By …" line; the publication itself when empty. */
+  bylines?: BlogPostByline[];
   image?: BlogPostImage;
   body?: React.ReactNode;
   /** Shown beside the body on large screens and above it on small ones. */
@@ -37,8 +51,13 @@ const Blogpost1 = ({
   body,
   sidebar,
   date,
+  publishedAt,
+  updatedAt,
+  dateSuffix,
   datePrefix,
+  bylines,
 }: Blogpost1Props) => {
+  const showUpdated = Boolean(publishedAt && updatedAt && updatedAt.slice(0, 10) !== publishedAt.slice(0, 10));
   return (
     <section className={cn("py-32", className)}>
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 text-center">
@@ -76,10 +95,37 @@ const Blogpost1 = ({
               </a>
             </span>
           ) : null}
+          {bylines?.length ? (
+            <span className="text-muted-foreground">
+              By{" "}
+              {bylines.map((byline, index) => (
+                <span key={byline.name}>
+                  {index > 0 ? (index === bylines.length - 1 ? " and " : ", ") : null}
+                  {byline.url ? (
+                    <a href={byline.url} rel="author" className="font-semibold text-foreground hover:underline">
+                      {byline.name}
+                    </a>
+                  ) : (
+                    <span className="font-semibold text-foreground">{byline.name}</span>
+                  )}
+                </span>
+              ))}
+              {date ? <span aria-hidden="true"> ·</span> : null}
+            </span>
+          ) : null}
           {date ? (
             <span className="text-muted-foreground">
               {datePrefix ? `${datePrefix} ` : null}
-              {date}
+              {publishedAt ? <time dateTime={publishedAt}>{date}</time> : date}
+              {showUpdated && updatedAt ? (
+                <>
+                  {" · Updated "}
+                  <time dateTime={updatedAt}>
+                    {new Date(updatedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}
+                  </time>
+                </>
+              ) : null}
+              {dateSuffix ? ` · ${dateSuffix}` : null}
             </span>
           ) : null}
         </div>
