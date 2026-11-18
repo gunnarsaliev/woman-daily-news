@@ -213,7 +213,7 @@ async function PostView({ post, categories }: { post: BlogPost; categories: Blog
       </article>
 
       {related.length > 0 && (
-        <section aria-labelledby="related-stories-heading" className="border-t border-slate-100 px-5 py-12 sm:px-8 md:px-10 lg:px-12">
+        <section aria-labelledby="related-stories-heading" className="content-auto border-t border-slate-100 px-5 py-12 sm:px-8 md:px-10 lg:px-12">
           <h2 className="text-2xl font-semibold tracking-[-0.035em] text-slate-900" id="related-stories-heading">
             More stories for you
           </h2>

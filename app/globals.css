@@ -126,5 +126,20 @@
     }
   html {
     @apply font-sans;
+  }
+
+  /* Smooth in-page scrolling, except for people who asked their system for reduced motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
     }
+  }
+}
+/*
+ * Lets the browser skip layout and paint for below-the-fold sections until they near the viewport.
+ * The intrinsic size reserves space so the scrollbar doesn't jump while they render.
+ */
+@utility content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
 }

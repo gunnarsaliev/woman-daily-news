@@ -1,7 +1,9 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
+import { CategoryIdsProvider } from '@/components/category-ids-provider'
 import { JsonLd } from '@/components/json-ld'
+import { getCategories } from '@/lib/payload'
 import { IS_INDEXABLE, OPEN_GRAPH_DEFAULTS, SITE_DESCRIPTION, SITE_LANGUAGE, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site'
 import { siteSchema } from '@/lib/structured-data'
 import './globals.css'
@@ -40,16 +42,28 @@ export const viewport: Viewport = {
   themeColor: '#f0f6ff',
 }
 
-export default function RootLayout({
+async function getCategoryIds(): Promise<string[]> {
+  try {
+    return (await getCategories()).map((category) => category.id)
+  } catch (error) {
+    // Pages still render while the CMS is unreachable; loading skeletons then default to the article layout.
+    console.error(error)
+    return []
+  }
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const categoryIds = await getCategoryIds()
+
   return (
-    <html lang={SITE_LANGUAGE} className={`light ${geist.variable}`}>
+    <html lang={SITE_LANGUAGE} data-scroll-behavior="smooth" className={`light ${geist.variable}`}>
       <body className="antialiased">
         <JsonLd data={siteSchema()} />
-        {children}
+        <CategoryIdsProvider ids={categoryIds}>{children}</CategoryIdsProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

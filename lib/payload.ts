@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import type { BlogArticle, BlogAuthor, BlogCategory } from '@/components/blog/blog-types'
 import type { LexicalNode } from '@/components/blog/rich-text'
 
@@ -14,8 +15,19 @@ const TENANT_ID = process.env.PAYLOAD_TENANT_ID
 const LOCALE = process.env.PAYLOAD_LOCALE
 const FALLBACK_LOCALE = process.env.PAYLOAD_FALLBACK_LOCALE
 
-/** Seconds before cached CMS responses are refreshed. */
-const REVALIDATE_SECONDS = 60
+/**
+ * Seconds before cached CMS responses (and the pages built from them) are refreshed in the background.
+ * Publishing in the CMS can refresh them immediately through /api/revalidate, so this is only the fallback.
+ */
+const REVALIDATE_SECONDS = 300
+/** Cache tag on every CMS response; /api/revalidate invalidates it. */
+export const CMS_CACHE_TAG = 'payload'
+/**
+ * A CMS request slower than this errors instead of stalling the page.
+ * The abort signal turns off fetch's per-render memoization, so the exported readers are wrapped in React
+ * `cache()`, which dedupes them again across the layout, metadata and page of one render.
+ */
+const REQUEST_TIMEOUT_MS = 8000
 const WORDS_PER_MINUTE = 200
 const SUMMARY_LENGTH = 180
 /** Shown for posts that have no main image in the CMS. */
@@ -79,7 +91,10 @@ async function payloadFetch<T>(path: string, params: Record<string, string>): Pr
   const url = `${API_URL}/api/${path}?${query}`
   let response: Response
   try {
-    response = await fetch(url, { next: { revalidate: REVALIDATE_SECONDS } })
+    response = await fetch(url, {
+      next: { revalidate: REVALIDATE_SECONDS, tags: [CMS_CACHE_TAG] },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    })
   } catch (cause) {
     throw new Error(`Could not reach Payload CMS at ${API_URL}. Is it running?`, { cause })
   }
@@ -154,14 +169,14 @@ function titleFromSlug(slug: string) {
 }
 
 /** All published posts, newest first. */
-export async function getPosts(): Promise<BlogPost[]> {
+export const getPosts = cache(async (): Promise<BlogPost[]> => {
   const data = await payloadFetch<PayloadList<PayloadPost>>('blog', {
     depth: '1',
     limit: '100',
     sort: '-createdAt',
   })
   return data.docs.map(toBlogPost).filter((post) => post !== null)
-}
+})
 
 /** Most posts fetched per CMS request when listing every post. */
 const PAGE_SIZE = 100
@@ -169,7 +184,7 @@ const PAGE_SIZE = 100
 const MAX_PAGES = 50
 
 /** Every published post, newest first, across as many CMS pages as needed (for sitemaps and feeds). */
-export async function getAllPosts(): Promise<BlogPost[]> {
+export const getAllPosts = cache(async (): Promise<BlogPost[]> => {
   const posts: BlogPost[] = []
   for (let page = 1; page <= MAX_PAGES; page++) {
     const data = await payloadFetch<PayloadList<PayloadPost>>('blog', {
@@ -182,9 +197,9 @@ export async function getAllPosts(): Promise<BlogPost[]> {
     if (!data.hasNextPage) break
   }
   return posts
-}
+})
 
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+export const getPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
   const data = await payloadFetch<PayloadList<PayloadPost>>('blog', {
     depth: '1',
     limit: '1',
@@ -192,9 +207,9 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   })
   const post = data.docs[0]
   return post ? toBlogPost(post) : null
-}
+})
 
-export async function getCategories(): Promise<BlogCategory[]> {
+export const getCategories = cache(async (): Promise<BlogCategory[]> => {
   const data = await payloadFetch<PayloadList<PayloadCategory>>('blog-categories', {
     depth: '0',
     limit: '100',
@@ -204,4 +219,4 @@ export async function getCategories(): Promise<BlogCategory[]> {
       ? [{ id: category.slug, label: category.title || titleFromSlug(category.slug), description: category.description || undefined }]
       : [],
   )
-}
+})

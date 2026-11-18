@@ -78,7 +78,7 @@ export function BlogHome({ data }: { data: BlogHomeData }) {
 
         <TrustStrip brands={data.trustedBy} />
 
-        <div className="px-5 py-12 sm:px-8 md:px-10 lg:px-12">
+        <div className="content-auto px-5 py-12 sm:px-8 md:px-10 lg:px-12">
           <LatestStories
             stories={visibleStories}
             page={activePage}

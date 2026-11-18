@@ -135,7 +135,9 @@ const Blogpost1 = ({
               src={image.src}
               alt={image.alt}
               fill
-              priority
+              // The hero image is the Largest Contentful Paint: fetch it first instead of lazily.
+              loading="eager"
+              fetchPriority="high"
               sizes="(max-width: 1024px) 100vw, 1024px"
               className="object-cover"
             />

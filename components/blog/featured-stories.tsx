@@ -51,7 +51,9 @@ export function FeaturedStories({ spotlight, trending, supporting }: FeaturedSto
             alt={spotlight.imageAlt}
             className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             fill
-            priority
+            // The hero image is the Largest Contentful Paint: fetch it first instead of lazily.
+            loading="eager"
+            fetchPriority="high"
             sizes="(max-width: 1024px) 100vw, 52vw"
             src={spotlight.image}
           />
