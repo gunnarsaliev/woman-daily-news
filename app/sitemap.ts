@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { escapeXml } from '@/lib/feeds'
 import { getAllPosts, getCategories } from '@/lib/payload'
 import { categoryPath, postPath } from '@/lib/routes'
-import { absoluteUrl } from '@/lib/site'
+import { absoluteUrl, TRUST_PAGES } from '@/lib/site'
 
 export const revalidate = 3600
 
@@ -20,6 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!categoryPosts.length) return []
         return [{ url: absoluteUrl(categoryPath(category.id)), lastModified: newest(categoryPosts), changeFrequency: 'daily' as const, priority: 0.7 }]
       }),
+      ...TRUST_PAGES.map((page) => ({ url: absoluteUrl(page.path), changeFrequency: 'yearly' as const, priority: 0.3 })),
       ...posts.map((post) => ({
         url: absoluteUrl(postPath(post)),
         lastModified: post.updatedAt,

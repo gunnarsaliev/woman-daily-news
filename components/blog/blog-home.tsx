@@ -7,24 +7,15 @@ import { FeaturedStories } from '@/components/blog/featured-stories'
 import { LatestStories } from '@/components/blog/latest-stories'
 import { SiteFooter } from '@/components/blog/site-footer'
 import { TrustStrip } from '@/components/blog/trust-strip'
-import type { BlogArticle, BlogHomeData } from '@/components/blog/blog-types'
+import type { BlogHomeData } from '@/components/blog/blog-types'
 
+/** Stories per page in the "Latest stories" grid. */
 const PAGE_SIZE = 6
-const PAGE_NUMBERS = [1, 2, 3, 4, 10]
-
-function getVisibleStories(stories: BlogArticle[], page: number) {
-  if (stories.length <= PAGE_SIZE) return stories
-
-  const start = ((page - 1) * PAGE_SIZE) % stories.length
-  return Array.from({ length: Math.min(PAGE_SIZE, stories.length) }, (_, index) => {
-    return stories[(start + index) % stories.length]
-  })
-}
 
 export function BlogHome({ data }: { data: BlogHomeData }) {
   const [activeCategory, setActiveCategory] = useState('all')
   const [search, setSearch] = useState('')
-  const [activePage, setActivePage] = useState(4)
+  const [activePage, setActivePage] = useState(1)
 
   const filteredArticles = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
@@ -39,7 +30,9 @@ export function BlogHome({ data }: { data: BlogHomeData }) {
   const spotlight = filteredArticles.find((article) => article.id === data.spotlightArticleId) ?? filteredArticles[0]
   const supportingStories = filteredArticles.filter((article) => article.id !== spotlight?.id)
   const latestStories = filteredArticles.filter((article) => article.id !== spotlight?.id)
-  const visibleStories = getVisibleStories(latestStories, activePage)
+  const pageCount = Math.max(1, Math.ceil(latestStories.length / PAGE_SIZE))
+  const currentPage = Math.min(activePage, pageCount)
+  const visibleStories = latestStories.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   function changeCategory(categoryId: string) {
     setActiveCategory(categoryId)
@@ -49,6 +42,12 @@ export function BlogHome({ data }: { data: BlogHomeData }) {
   function changeSearch(value: string) {
     setSearch(value)
     setActivePage(1)
+  }
+
+  function changePage(page: number) {
+    setActivePage(page)
+    // Bring the new page into view; the CSS scroll-behavior makes this smooth unless reduced motion is requested.
+    document.getElementById('latest-stories-heading')?.scrollIntoView({ block: 'start' })
   }
 
   return (
@@ -81,9 +80,9 @@ export function BlogHome({ data }: { data: BlogHomeData }) {
         <div className="content-auto px-5 py-12 sm:px-8 md:px-10 lg:px-12">
           <LatestStories
             stories={visibleStories}
-            page={activePage}
-            pageNumbers={PAGE_NUMBERS}
-            onPageChange={setActivePage}
+            page={currentPage}
+            pageCount={pageCount}
+            onPageChange={changePage}
           />
         </div>
 

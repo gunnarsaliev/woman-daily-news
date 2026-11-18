@@ -7,3 +7,8 @@ export function categoryPath(categoryId: string) {
 export function postPath(post: { id: string; categoryId?: string }) {
   return `/${post.id}`
 }
+
+/** Generated sharing card (app/og) for a post that has no image of its own. */
+export function ogImagePath(post: { id: string }) {
+  return `/og${postPath(post)}`
+}

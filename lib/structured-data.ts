@@ -1,10 +1,11 @@
-import type { BreadcrumbList, CollectionPage, Graph, NewsArticle, Organization, Person, WebSite, WithContext } from 'schema-dts'
+import type { AboutPage, BreadcrumbList, CollectionPage, ContactPage, Graph, NewsArticle, Organization, Person, WebPage, WebSite, WithContext } from 'schema-dts'
 import type { BlogArticle, BlogCategory } from '@/components/blog/blog-types'
 import type { Breadcrumb as BreadcrumbItem } from '@/components/blog/breadcrumbs'
 import type { BlogPost } from '@/lib/payload'
-import { postPath } from '@/lib/routes'
+import { ogImagePath, postPath } from '@/lib/routes'
 import {
   absoluteUrl,
+  CONTACT_EMAIL,
   LOGO_SIZE,
   LOGO_URL,
   ORGANIZATION_ID,
@@ -28,6 +29,10 @@ function organization(): Organization {
     name: SITE_NAME,
     url: SITE_URL,
     logo: { '@type': 'ImageObject', url: LOGO_URL, width: `${LOGO_SIZE}`, height: `${LOGO_SIZE}` },
+    // Editorial standards and corrections policy, which Google uses as trust signals for news publishers.
+    publishingPrinciples: absoluteUrl('/editorial-policy'),
+    correctionsPolicy: absoluteUrl('/editorial-policy#corrections'),
+    ...(CONTACT_EMAIL ? { contactPoint: { '@type': 'ContactPoint', contactType: 'editorial', email: CONTACT_EMAIL } } : {}),
     ...(SITE_SAME_AS.length ? { sameAs: SITE_SAME_AS } : {}),
   }
 }
@@ -81,7 +86,7 @@ export function articleSchema(post: BlogPost, categories: BlogCategory[]): WithC
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     headline: headline(post.title),
     description: post.summary,
-    ...(post.image ? { image: [post.image] } : {}),
+    image: [post.hasOwnImage && post.image ? post.image : absoluteUrl(ogImagePath(post))],
     datePublished: post.publishedAt,
     dateModified: post.updatedAt,
     author: authors(post),
@@ -131,4 +136,24 @@ export function collectionPageSchema(category: BlogCategory, path: string, posts
       })),
     },
   }
+}
+
+type StaticPageType = 'AboutPage' | 'ContactPage' | 'WebPage'
+
+/** About, contact, policy and other standalone pages. */
+export function staticPageSchema(type: StaticPageType, page: { path: string; name: string; description: string }) {
+  const url = absoluteUrl(page.path)
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': type,
+    '@id': url,
+    url,
+    name: page.name,
+    description: page.description,
+    inLanguage: SITE_LANGUAGE,
+    isPartOf: { '@id': WEBSITE_ID },
+    // About and contact pages describe the publisher itself.
+    ...(type === 'WebPage' ? { publisher: organizationRef } : { about: organizationRef }),
+  }
+  return schema as WithContext<AboutPage | ContactPage | WebPage>
 }

@@ -6,13 +6,13 @@ import type { BlogAuthor, BlogCategory } from '@/components/blog/blog-types'
 import { type Breadcrumb, Breadcrumbs } from '@/components/blog/breadcrumbs'
 import { getHeadings, RichText } from '@/components/blog/rich-text'
 import { ShareButtons } from '@/components/blog/share-buttons'
-import { SiteFooter } from '@/components/blog/site-footer'
 import { TableOfContents } from '@/components/blog/table-of-contents'
 import { Blogpost1 } from '@/components/blogpost1'
 import { JsonLd } from '@/components/json-ld'
+import { SiteShell } from '@/components/site-shell'
 import { authorNames, markdownPath } from '@/lib/feeds'
 import { type BlogPost, getCategories, getPostBySlug, getPosts } from '@/lib/payload'
-import { categoryPath, postPath } from '@/lib/routes'
+import { categoryPath, ogImagePath, postPath } from '@/lib/routes'
 import { DEFAULT_SOCIAL_IMAGE, OPEN_GRAPH_DEFAULTS, SITE_NAME, socialImage } from '@/lib/site'
 import { articleSchema, breadcrumbSchema, collectionPageSchema, tagLabels } from '@/lib/structured-data'
 
@@ -68,7 +68,11 @@ export async function generateMetadata({ params }: ContentPageProps): Promise<Me
   const { post, categories } = route
   const path = postPath(post)
   const section = categories.find((item) => item.id === post.categoryId)?.label
-  const image = post.image ? socialImage(post.image, post.imageAlt) : DEFAULT_SOCIAL_IMAGE
+  // Stock fallback photos say nothing about the story, so those posts share a generated title card instead.
+  const image =
+    post.hasOwnImage && post.image
+      ? socialImage(post.image, post.imageAlt)
+      : { url: ogImagePath(post), width: 1200, height: 630, alt: post.title }
   const authors: BlogAuthor[] = post.authors.length ? post.authors : [{ name: authorNames(post) }]
   return {
     title: post.metaTitle ?? post.title,
@@ -108,16 +112,13 @@ export default async function ContentPage({ params }: ContentPageProps) {
   if (!route) notFound()
 
   return (
-    <main className="min-h-screen bg-[#f0f6ff] px-3 py-4 sm:px-6 sm:py-8 lg:px-8" id="top">
-      <div className="mx-auto max-w-[1440px] overflow-clip rounded-[28px] border border-white/80 bg-white shadow-[0_24px_80px_-48px_rgba(38,94,162,0.35)]">
-        {route.type === 'category' ? (
-          <CategoryView category={route.category} />
-        ) : (
-          <PostView categories={route.categories} post={route.post} />
-        )}
-        <SiteFooter />
-      </div>
-    </main>
+    <SiteShell>
+      {route.type === 'category' ? (
+        <CategoryView category={route.category} />
+      ) : (
+        <PostView categories={route.categories} post={route.post} />
+      )}
+    </SiteShell>
   )
 }
 

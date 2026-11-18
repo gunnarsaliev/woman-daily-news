@@ -1,4 +1,5 @@
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
 import { CategoryIdsProvider } from '@/components/category-ids-provider'
@@ -64,7 +65,13 @@ export default async function RootLayout({
       <body className="antialiased">
         <JsonLd data={siteSchema()} />
         <CategoryIdsProvider ids={categoryIds}>{children}</CategoryIdsProvider>
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {process.env.NODE_ENV === 'production' && (
+          <>
+            <Analytics />
+            {/* Real-user Core Web Vitals (LCP, INP, CLS) in the Vercel dashboard. */}
+            <SpeedInsights />
+          </>
+        )}
       </body>
     </html>
   )

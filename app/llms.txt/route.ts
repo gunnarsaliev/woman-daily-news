@@ -1,7 +1,7 @@
 import { markdownPath, textResponse } from '@/lib/feeds'
 import { getCategories, getPosts } from '@/lib/payload'
 import { categoryPath } from '@/lib/routes'
-import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME } from '@/lib/site'
+import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME, TRUST_PAGES } from '@/lib/site'
 
 const MAX_ARTICLES = 100
 
@@ -31,6 +31,7 @@ export async function GET() {
       '',
       `- [RSS feed](${absoluteUrl('/feed.xml')}): latest articles with full text`,
       `- [Sitemap](${absoluteUrl('/sitemap.xml')}): every page on the site`,
+      ...TRUST_PAGES.map((page) => `- [${page.label}](${absoluteUrl(page.path)})`),
       '',
     ].join('\n')
 

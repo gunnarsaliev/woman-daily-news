@@ -1,14 +1,34 @@
 /**
  * Site-wide identity used by metadata, structured data, sitemaps and feeds.
  *
- * NEXT_PUBLIC_SITE_URL  public origin of the site, e.g. https://example.com (no trailing slash needed).
+ * NEXT_PUBLIC_SITE_URL  public origin of the site, e.g. https://example.com (a bare domain is treated as https).
  *                       Falls back to Vercel's production domain, then to localhost.
  */
+/** Origin of a configured URL; a bare domain like `example.com` is treated as https. */
+function toOrigin(value: string, source: string) {
+  const trimmed = value.trim()
+  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+  try {
+    return new URL(withProtocol).origin
+  } catch {
+    throw new Error(`${source} is not a valid URL: "${value}". Use a full origin such as https://example.com.`)
+  }
+}
+
+/**
+ * Each environment links to itself, so Open Graph images, sitemaps and feeds resolve wherever they are viewed:
+ * - `next dev`: localhost (the production domain may not have the new routes yet)
+ * - Vercel preview deployments: the preview's own URL (previews are noindex, so canonicals don't matter there)
+ * - production and local `next start`: NEXT_PUBLIC_SITE_URL, else Vercel's production domain
+ */
 function resolveSiteUrl() {
+  if (process.env.NODE_ENV === 'development') return `http://localhost:${process.env.PORT || 3000}`
+  if (process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL) return toOrigin(process.env.VERCEL_URL, 'VERCEL_URL')
+
   const explicit = process.env.NEXT_PUBLIC_SITE_URL
-  if (explicit) return explicit.replace(/\/+$/, '')
+  if (explicit?.trim()) return toOrigin(explicit, 'NEXT_PUBLIC_SITE_URL')
   const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  if (vercel) return `https://${vercel.replace(/\/+$/, '')}`
+  if (vercel?.trim()) return toOrigin(vercel, 'VERCEL_PROJECT_PRODUCTION_URL')
   return 'http://localhost:3000'
 }
 
@@ -23,6 +43,20 @@ export const SITE_LANGUAGE = 'en'
 export const SITE_LOCALE = 'en_US'
 /** Profiles of the publication on other sites (social networks, Wikipedia…), for Organization `sameAs`. */
 export const SITE_SAME_AS: string[] = []
+
+/**
+ * Public contact address shown on /contact and in Organization structured data (NEXT_PUBLIC_CONTACT_EMAIL).
+ * Nothing is shown while it is unset.
+ */
+export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? ''
+
+/** About, editorial and legal pages, linked from the footer and listed in the sitemap and llms.txt. */
+export const TRUST_PAGES = [
+  { path: '/about', label: 'About us' },
+  { path: '/editorial-policy', label: 'Editorial policy' },
+  { path: '/contact', label: 'Contact' },
+  { path: '/privacy', label: 'Privacy policy' },
+] as const
 
 /** Only production deployments are indexed; previews and local builds tell crawlers to stay away. */
 export const IS_INDEXABLE = process.env.VERCEL_ENV ? process.env.VERCEL_ENV === 'production' : process.env.NODE_ENV === 'production'
