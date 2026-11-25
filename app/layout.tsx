@@ -2,10 +2,13 @@ import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
+import Script from 'next/script'
 import { CategoryIdsProvider } from '@/components/category-ids-provider'
+import { CookieConsentBanner } from '@/components/cookie-consent'
 import { JsonLd } from '@/components/json-ld'
 import { getCategories } from '@/lib/payload'
 import { IS_INDEXABLE, OPEN_GRAPH_DEFAULTS, SITE_DESCRIPTION, SITE_LANGUAGE, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site'
+import { CONSENT_DEFAULTS_SCRIPT, GTM_ID, gtmScript } from '@/lib/consent'
 import { siteSchema } from '@/lib/structured-data'
 import './globals.css'
 
@@ -64,9 +67,27 @@ export default async function RootLayout({
     <html lang={SITE_LANGUAGE} data-scroll-behavior="smooth" className={`light ${geist.variable}`}>
       <body className="antialiased">
         <JsonLd data={siteSchema()} />
+        {/* Google Consent Mode defaults (all denied) must run before any Google tag loads. */}
+        <Script id="consent-defaults" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: CONSENT_DEFAULTS_SCRIPT }} />
         <CategoryIdsProvider ids={categoryIds}>{children}</CategoryIdsProvider>
+        <CookieConsentBanner />
         {process.env.NODE_ENV === 'production' && (
           <>
+            {/* Loads after the consent defaults above, so GTM tags start in "denied" until the visitor chooses. */}
+            {GTM_ID && (
+              <>
+                <Script id="gtm" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: gtmScript(GTM_ID) }} />
+                <noscript>
+                  <iframe
+                    src={`https://www.googletagmanager.com/ns.html?id=${encodeURIComponent(GTM_ID)}`}
+                    height="0"
+                    width="0"
+                    style={{ display: 'none', visibility: 'hidden' }}
+                    title="Google Tag Manager"
+                  />
+                </noscript>
+              </>
+            )}
             <Analytics />
             {/* Real-user Core Web Vitals (LCP, INP, CLS) in the Vercel dashboard. */}
             <SpeedInsights />

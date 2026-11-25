@@ -4,9 +4,12 @@ const payloadUrl = new URL(process.env.PAYLOAD_API_URL ?? "http://localhost:3001
 const isLocalPayload = ["localhost", "127.0.0.1"].includes(payloadUrl.hostname)
 
 // Canonical URLs, sitemaps and structured data are built from the public site URL. A production deploy without it
-// would silently point all of them at the *.vercel.app domain, so it fails instead.
-if (process.env.VERCEL_ENV === 'production' && !process.env.NEXT_PUBLIC_SITE_URL) {
-  throw new Error('NEXT_PUBLIC_SITE_URL must be set for production deployments (e.g. https://example.com).')
+// would silently point all of them at the *.vercel.app domain, so the build warns.
+if (process.env.VERCEL_ENV === 'production' && !process.env.NEXT_PUBLIC_SITE_URL?.trim()) {
+  // Vercel's production domain (your custom domain once one is assigned) is used instead; see lib/site.ts.
+  console.warn(
+    `⚠ NEXT_PUBLIC_SITE_URL is not set; canonical URLs will use ${process.env.VERCEL_PROJECT_PRODUCTION_URL ?? 'localhost'}. Set it in Vercel to your real domain.`,
+  )
 }
 
 /**

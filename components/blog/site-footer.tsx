@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ArrowUpRight, Newspaper } from 'lucide-react'
+import { CookieSettingsButton } from '@/components/cookie-settings-button'
 import { TRUST_PAGES } from '@/lib/site'
 
 export function SiteFooter() {
@@ -26,6 +27,9 @@ export function SiteFooter() {
                 </Link>
               </li>
             ))}
+            <li>
+              <CookieSettingsButton className="transition-colors hover:text-slate-900" />
+            </li>
           </ul>
         </nav>
       </div>
