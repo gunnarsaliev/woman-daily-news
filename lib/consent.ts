@@ -73,8 +73,10 @@ export const CONSENT_DEFAULTS_SCRIPT = `
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 window.gtag = window.gtag || gtag;
-gtag('consent', 'default', ${JSON.stringify(
-  Object.fromEntries(CONSENT_CATEGORIES.map((c) => [c.id, c.necessary ? 'granted' : 'denied'])),
-)}, { wait_for_update: 500 });
+gtag('consent', 'default', ${JSON.stringify({
+  ...Object.fromEntries(CONSENT_CATEGORIES.map((c) => [c.id, c.necessary ? 'granted' : 'denied'])),
+  // Must be a key of the consent object: a separate 4th argument makes GTM reject the whole command.
+  wait_for_update: 500,
+})});
 gtag('set', 'ads_data_redaction', true);
 `
